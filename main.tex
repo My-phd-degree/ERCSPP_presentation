@@ -1,0 +1,112 @@
+\documentclass[notheorems]{beamer}
+
+%packages
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{float}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{geometry}
+\usepackage{amsfonts, amssymb, amsmath}             % Fonte e símbolos matemáticos
+%\usepackage[english,ruled,lined,linesnumbered]{algorithm2e}    % Escrever algoritmos
+\usepackage{algorithm,algorithmic}
+\usepackage{amsthm}
+\usepackage{theoremref}
+\usepackage[autostyle]{csquotes}
+\usepackage{multicol}
+\usepackage{biblatex}
+%biber latex settings
+\addbibresource{mybib.bib}
+
+\usepackage[utf8]{inputenc}
+
+\addtobeamertemplate{navigation symbols}{}{%
+  \usebeamerfont{footline}%
+  \usebeamercolor[fg]{footline}%
+  \hspace{1em}%
+  \insertframenumber/\inserttotalframenumber
+}
+\setbeamercolor{footline}{fg=blue}
+\setbeamerfont{footline}{series=\bfseries}
+
+\makeatletter
+\newtheorem{problem}{\translate{Problem}}
+\newtheorem{solution}{\translate{Solution}}
+
+\theoremstyle{definition}
+\newtheorem{definition}{\translate{Definition}}
+\newtheorem{definitions}{\translate{Definitions}}
+
+\theoremstyle{example}
+\newtheorem{example}{\translate{Example}}
+\newtheorem{examples}{\translate{Examples}}
+
+% Compatibility
+\newtheorem{Beispiel}{Beispiel}
+\newtheorem{Beispiele}{Beispiele}
+\theoremstyle{plain}
+\newtheorem{Loesung}{L\"osung}
+\newtheorem{Satz}{Satz}
+\newtheorem{Folgerung}{Folgerung}
+\newtheorem{Fakt}{Fakt}
+\newenvironment{Proof}{\begin{proof}}{\end{proof}}
+\newenvironment{Problem}{\begin{problem}}{\end{problem}}
+\newenvironment{Example}{\begin{example}}{\end{example}}
+\newenvironment{Examples}{\begin{examples}}{\end{examples}}
+\newenvironment{Definition}{\begin{definition}}{\end{definition}}
+\newenvironment{claim}[1]{\par\noindent\blue{Claim:}\space#1}{}
+\newenvironment{claimproof}[1]{\par\noindent\blue{Proof:}\space#1}{\hfill $\blacksquare$}
+\makeatother
+
+%tikz settings
+\usetikzlibrary{arrows,positioning,automata,shadows,fit,shapes,calc,shapes.geometric}
+\tikzset{triangle_black/.style={regular polygon, regular polygon sides=3, minimum size=0.3cm, fill=black}}
+\tikzset{triangle/.style={regular polygon, regular polygon sides=3, minimum size=0.3cm, fill=white}}
+\tikzset{square/.style={regular polygon, regular polygon sides=4, minimum size=0.3cm, fill=white}}
+\tikzset{circufe/.style={circle,draw, minimum size=0.2cm, fill=white}}
+\tikzset{raio/.style={circle,draw, minimum size=1.45cm, fill=white}} 
+\tikzset{circle_new/.style={circle,draw, minimum size=0.2cm, fill=white}}   
+\tikzset{label/.style={draw=black, fill=white}}   
+
+\newcounter{savedenum}
+\newcommand*{\saveenum}{\setcounter{savedenum}{\theenumi}}
+\newcommand*{\resume}{\setcounter{enumi}{\thesavedenum}}
+\newcommand{\blue}[1]{\textcolor{blue}{#1}}
+
+%Information to be included in the title page:
+\title{Elementary Resource Constrained Shortest Path Problem (ERCSPP)}
+\author{Matheus Diógenes Andrade\\
+\href{mailto:matheusdiogenesandrade@gmail.com}{matheusdiogenesandrade@gmail.com}\\
+Fábio Luiz Usberti\\
+\href{mailto:fusberti@ic.unicamp.br}{fusberti@ic.unicamp.br}\\
+Rafael Kendy Arakaki\\
+\href{mailto:rafaelkendyarakaki@gmail.com}{rafaelkendyarakaki@gmail.com}
+}
+\institute{Institute of Computing - University of Campinas}
+\date{2021}
+
+\begin{document}
+
+\frame{\titlepage}
+
+\begin{frame}
+  \frametitle{Topics}
+  Paper base \footfullcite{FeilletDejaxGendreauGueguen2004}.
+  \begin{enumerate}
+    \item Problem definition;
+    \item Properties;
+    \item Algorithm;
+  \end{enumerate}
+\end{frame}
+
+\input{1_problem_definition}
+
+\input{2_definitions}
+
+\input{3_algorithm}
+
+\begin{frame}
+\printbibliography
+\end{frame}
+
+\end{document}
