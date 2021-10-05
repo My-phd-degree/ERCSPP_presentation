@@ -14,24 +14,41 @@
       \item \blue{$t$} is the target node.
     \end{itemize}
     \item \blue{$c_a \in \mathbb{R}$} be the arc \blue{$a \in A$} cost;
-    \item \blue{$R$} be the set fo resources;
-    \item \blue{$d^r_a \in \mathbb{R}$} be the arc \blue{$a \in A$}' metric resource \blue{$r \in R$} consumption;
-    \item \blue{$w^r_i = [b^r_i, e^r_i]$} be the node \blue{$i \in V$}' resource \blue{$r \in R$} window.
+    \item \blue{$R$} be the set of resources;
+    \item \blue{$d^r_a \in \mathbb{R}$} be the metric resource \blue{$r \in R$} consumption of the arc \blue{$a \in A$};
+    \item \blue{$w^r_i = [b^r_i, e^r_i]$} be the resource \blue{$r \in R$} window of the node \blue{$i \in V$}.
   \end{itemize}
-  The ERCSPP consists in finding the shortest \blue{$s$}-\blue{$t$}-path in \blue{$D$}.
 \end{frame}
 
 \begin{frame}
   \frametitle{Problem definition}
-  \blue{$c_a: (d^1_a, d^2_a)$}\\
-  \blue{$w_s^1 = w_s^2 = [0,0], w_2^1 = [2, 3], w_2^2 = [0, 1], w_3^1 = [1, 5], w_3^2 = [1, 3], w_t^1 = [3, 5], w_t^2 = [0, 2]$}
+  Let
+  \begin{itemize}
+    \item \blue{$P$} be an elementary resource constrained \blue{$s$}-\blue{$t$}-path in \blue{$D$}; and
+    \item \blue{$S_i^r$} be the resource \blue{$r \in R$} consumption of node \blue{$i \in V(P)$},
+  such that \blue{$\forall (i, j) \in A(P) (\forall r \in R (S_j^r = \text{max} \{S_i^r + d_{ij}^r, b_j^r\} \leqslant e_j^r))$}.
+  \end{itemize}
+  The ERCSPP consists in finding the shortest elementary resource constrained \blue{$s$}-\blue{$t$}-path \blue{$P$} in \blue{$D$}.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Problem definition}
+  \blue{$c_a: (d^1_a, d^2_a)$}
   \begin{figure}[H]
     \centering
-    \begin{tikzpicture}
+    \begin{tikzpicture}[font=\tiny]
       %nodes
+      \node at (-0.8, 0.15) {\blue{$w_s^1 = [0,0]$}};
+      \node at (-0.8, -0.15) {\blue{$w_s^2 = [0,0]$}};
       \node[circle, draw] (s) at (0, 0) {\blue{$s$}};
+      \node at (2, 2.7) {\blue{$w_2^1 = [2, 3]$}};
+      \node at (2, 2.4) {\blue{$w_2^2 = [1, 1]$}};
       \node[circle, draw] (a) at (2, 2) {\blue{$2$}};
+      \node at (2, -2.4) {\blue{$w_3^1 = [1, 5]$}};
+      \node at (2, -2.7) {\blue{$w_3^2 = [1, 3]$}};
       \node[circle, draw] (b) at (2, -2) {\blue{$3$}};
+      \node at (4.8, 0.15) {\blue{$w_t^1 = [3, 5]$}};
+      \node at (4.8, -0.15) {\blue{$w_t^2 = [0, 3]$}};
       \node[circle, draw] (t) at (4, 0) {\blue{$t$}};
       %edges
       \path [draw,-latex] (s) to node[left]{\scriptsize\blue{$2: (2, 2)$}} (a);
@@ -42,28 +59,33 @@
       \path [draw,-latex] (b) edge [bend left=8] node[left]{\scriptsize\blue{$4: (1, -2)$}} (a);
     \end{tikzpicture}
     \caption{A ERCSPP instance digraph example.}
-    \label{fig:vrptw_disposable_example}
   \end{figure}
 \end{frame}
 
 \begin{frame}
   \frametitle{Problem definition}
-  \blue{$c_a: (d^1_a, d^2_a)$}\\
-  \blue{$w_s^1 = w_s^2 = [0,0], w_2^1 = [2, 3], w_2^2 = [0, 1], w_3^1 = [1, 5], w_3^2 = [1, 3], w_t^1 = [3, 5], w_t^2 = [0, 2]$}
+  \blue{$c_a: (d^1_a, d^2_a)$}
   \begin{figure}[H]
     \centering
-    \begin{tikzpicture}
+    \begin{tikzpicture}[font=\tiny]
       %nodes
+      \node at (-0.8, 0.15) {\blue{$w_s^1 = [0,0]$}};
+      \node at (-0.8, -0.15) {\blue{$w_s^2 = [0,0]$}};
       \node[circle, draw] (s) at (0, 0) {\blue{$s$}};
+      \node at (2, 2.7) {\blue{$w_2^1 = [2, 3]$}};
+      \node at (2, 2.4) {\blue{$w_2^2 = [1, 1]$}};
       \node[circle, draw] (a) at (2, 2) {\blue{$2$}};
+      \node at (2, -2.4) {\blue{$w_3^1 = [1, 5]$}};
+      \node at (2, -2.7) {\blue{$w_3^2 = [1, 3]$}};
       \node[circle, draw] (b) at (2, -2) {\blue{$3$}};
+      \node at (4.8, 0.15) {\blue{$w_t^1 = [3, 5]$}};
+      \node at (4.8, -0.15) {\blue{$w_t^2 = [0, 3]$}};
       \node[circle, draw] (t) at (4, 0) {\blue{$t$}};
       %edges
       \path [draw,-latex] (s) to node[left]{\scriptsize\blue{$1: (2, 2)$}} (b);
       \path [draw,-latex] (b) edge [bend left=8] node[left]{\scriptsize\blue{$4: (1, -2)$}} (a);
       \path [draw,-latex] (a) to node[right]{\scriptsize\blue{$3: (2, 2)$}} (t);
     \end{tikzpicture}
-    \caption{A ERCSPP instance digraph example.}
-    \label{fig:vrptw_disposable_example}
+    \caption{The solution of the previous instance.}
   \end{figure}
 \end{frame}
