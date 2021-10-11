@@ -6,21 +6,38 @@
 
 \begin{frame}
   \frametitle{Algorithm}
-  \framesubtitle{Notations}
+  \framesubtitle{Notations I}
   Let
   \begin{itemize}
     \item \blue{$\Lambda_i$} be the list of labels on node \blue{$i \in V$};
     \item \blue{$N$} be the list of nodes to be processed;
+    \item \blue{$ E(S_i, j) = (\text{max} \{l^r_i + d_{ij}^r, b^r_j\} : r \in R) \cup (s_i + 1, v_i^1, ..., v_i^j + 1, $} \blue{$..., v_i^{|V|}) $} be the function that returns the label resulting from the extension of a path \blue{$P_i$} by a node \blue{$j$} (\blue{$O(|R|)$});
     \item \blue{\[
-        f(S_i) =  
+        f(S_i, j) =  
         \begin{cases}
-          \text{\textcolor{black}{true}},  & \text{\textcolor{black}{if} }      \forall r \in R (l_i^r \leqslant e_i^r) \wedge \forall j \in V (v_i^j \leqslant 1)\\
+          \text{\textcolor{black}{true}},  & \text{\textcolor{black}{if} }      \forall r \in R (\text{max} \{l^r_i + d_{ij}^r, b^r_j\}  \leqslant e_i^r) \wedge \neg v_i^j\\
           \text{\textcolor{black}{false}}, & \text{\textcolor{black}{otherwise}}
         \end{cases}
-    \]} be a function that says whether a label is feasible;
-\item \blue{$ E(S_i, j) = (\text{max} \{l^r_i + d_{ij}^r, b^r_j\} : r \in R) \cup (s_i + 1, v_i^1, ..., v_i^j + 1, $} \blue{$..., v_i^{|V|}) $} be the function that returns the label resulting from the extension of a path \blue{$P_i$} by a node \blue{$j$};
+    \]} be a function that says whether an extension is feasible (\blue{$O(|R|)$});
     \item \blue{$F_{ij}$} be the set of labels extended from \blue{$i$} to \blue{$j \in V$}; and
-    \item \blue{$N_D(\Lambda) = \{S_i \in \Lambda : \nexists S^{'}_i \in \Lambda (S^{'}_i \neq S_i \wedge S^{'}_i \leqslant S_i) \}$} be the function that returns all nondominated labels from \blue{$\Lambda$}.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Algorithm}
+  \framesubtitle{Notations II}
+  Let
+  \begin{itemize}
+    \item \blue{$N_D(\Lambda) = \{S_i \in \Lambda : \nexists S^{'}_i \in \Lambda (S^{'}_i \neq S_i \wedge S^{'}_i \leqslant S_i) \}$} be the function that returns all nondominated labels from \blue{$\Lambda$}. 
+      \begin{itemize}
+        \item A na\"{i}ve algorithm would take \blue{$O(|\Lambda||R|)$} to check whether a state is nondominated. However, keeping \blue{$|R|$} Binary Seach Trees (BSTs) associated with the labels set \blue{$\Lambda_i$} may help us to reduce the time complexity;
+        \item Let \blue{$BST_i^r$} be the BST containing all the resource \blue{$r \in R$} consumptions of all labels in \blue{$\Lambda_i$}, 
+              \blue{$g(BST_i^r, l_i^r)$} be the rightmost position of \blue{$BST_i^r$} whose value is equals to or less than \blue{$l_i^r$},
+              and \blue{$S(BST_i^{rj})$} be the label associated with the resource consumption at the \blue{$j$}-th position of \blue{$BST_i^r$};
+        \item To check if a label \blue{$S_i$} is nondominated it would take \blue{$O(\textcolor{black}{min}_{r \in R} \{ g(BST_i^r, l_i^r) \} |R| + |R|\textcolor{black}{log}_2^{|R|})$};
+        \item Note that the above complexity may be worst than the na\"{i}ve one, when \blue{$\textcolor{black}{min}_{r \in R} \{ g(BST_i^r, l_i^r) \} = |\Lambda_i|$};
+        \item But even though such case may not be so frequent, and besides that choosing the threshold \blue{$\textcolor{black}{min}_{r \in R} \{ g(BST_i^r, l_i^r) \} \leqslant |\Lambda_i|$} can be a good choice, since \blue{$|\Lambda_i|$} grows exponentially.
+      \end{itemize}
   \end{itemize}
 \end{frame}
 
@@ -36,12 +53,12 @@
       \STATE \blue{$\Lambda_i \gets \emptyset \quad \forall i \in V \backslash \{s\}$};
       \STATE \blue{$N \gets \{s\}$};
       %exploration
-      \label{step:main_while}\WHILE {\blue{$N \neq \emptyset$}}
+      \label{algo1:setp:main_while}\WHILE {\blue{$N \neq \emptyset$}}
         \STATE Let \blue{$i \in N$} be a \blue{$N$} arbitrary node;
-        \label{step:explore_arcs}\FORALL {\blue{$(i, j) \in \delta^{+}(i)$}}
+        \label{algo1:setp:explore_arcs}\FORALL {\blue{$(i, j) \in \delta^{+}(i)$}}
           \STATE \blue{$F_{ij} \gets \emptyset$};
           \FORALL {\blue{$S_i \in \Lambda_i$}}
-            \IF {\blue{$f(E(S_i, j))$}}
+            \IF {\blue{$f(S_i, j)$}}
               \STATE \blue{$F_{ij} \gets F_{ij} \cup \{E(S_i, j)\}$};
             \ENDIF
           \ENDFOR
@@ -63,7 +80,7 @@
   \frametitle{Algorithm}
   \framesubtitle{Example}
   \begin{multicols}{2}
-    State before line \ref{step:main_while}:
+    State before line \ref{algo1:setp:main_while}:
     \begin{itemize}   
       \item \blue{$\Lambda_s = \{ ((0, 0, 1, 1, 0, 0, 0), 0) \}$};
       \item \blue{$\Lambda_2 = \Lambda_3 = \Lambda_t = \emptyset$};
@@ -102,7 +119,7 @@
   \frametitle{Algorithm}
   \framesubtitle{Example}
   \begin{multicols}{2}
-    State at the end of \blue{$1$}st iteration of the while at line \ref{step:main_while}:
+    State at the end of \blue{$1$}st iteration of the while at line \ref{algo1:setp:main_while}:
     \begin{itemize}   
       \item \blue{$\Lambda_s = \{ ((0, 0, 1, 1, 0, 0, 0), 0) \}$};
       \item \blue{$\Lambda_2 = \emptyset$};
@@ -134,8 +151,7 @@
         \path [draw,-latex] (a) edge [bend left=8] node[right]{\scriptsize\blue{$1: (1, 1)$}} (b);
         \path [draw,-latex] (b) edge [bend left=8] node[left]{\scriptsize\blue{$4: (1, -2)$}} (a);
       \end{tikzpicture}
-      \caption{Arcs explored the for loop at line \ref{step:explore_arcs} when \blue{$i = s$}.}
-      \label{fig:vrptw_disposable_example}
+      \caption{Arcs explored the for loop at line \ref{algo1:setp:explore_arcs} when \blue{$i = s$}.}
     \end{figure}
   \end{multicols}
 \end{frame}
@@ -144,7 +160,7 @@
   \frametitle{Algorithm}
   \framesubtitle{Example}
   \begin{multicols}{2}
-    State at the end of \blue{$2$}rd iteration of the while at line \ref{step:main_while}:
+    State at the end of \blue{$2$}rd iteration of the while at line \ref{algo1:setp:main_while}:
     \begin{itemize}   
       \item \blue{$\Lambda_s = \{ ((0, 0, 1, 1, 0, 0, 0), 0) \}$};
       \item \blue{$\Lambda_2 = \{((3, 0, 3, 1, 1, 1, 0), 5)\}$};
@@ -176,8 +192,7 @@
         \path [draw,-latex] (a) edge [bend left=8] node[right]{\scriptsize\blue{$1: (1, 1)$}} (b);
         \path [blue, draw,-latex] (b) edge [bend left=8] node[left]{\scriptsize\blue{$4: (1, -2)$}} (a);
       \end{tikzpicture}
-      \caption{Arcs explored the for loop at line \ref{step:explore_arcs} when \blue{$i = 3$}.}
-      \label{fig:vrptw_disposable_example}
+      \caption{Arcs explored the for loop at line \ref{algo1:setp:explore_arcs} when \blue{$i = 3$}.}
     \end{figure}
   \end{multicols}
 \end{frame}
@@ -186,7 +201,7 @@
   \frametitle{Algorithm}
   \framesubtitle{Example}
   \begin{multicols}{2}
-    State at the end of \blue{$3$}nd iteration of the while at line \ref{step:main_while}:
+    State at the end of \blue{$3$}nd iteration of the while at line \ref{algo1:setp:main_while}:
     \begin{itemize}   
       \item \blue{$\Lambda_s = \{ ((0, 0, 1, 1, 0, 0, 0), 0) \}$};
       \item \blue{$\Lambda_2 = \{((3, 0, 3, 1, 1, 1, 0), 5)\}$};
@@ -218,8 +233,7 @@
         \path [blue, draw,-latex] (a) edge [bend left=8] node[right]{\scriptsize\blue{$1: (1, 1)$}} (b);
         \path [draw,-latex] (b) edge [bend left=8] node[left]{\scriptsize\blue{$4: (1, -2)$}} (a);
       \end{tikzpicture}
-      \caption{Arcs explored the for loop at line \ref{step:explore_arcs} when \blue{$i = 2$}.}
-      \label{fig:vrptw_disposable_example}
+      \caption{Arcs explored the for loop at line \ref{algo1:setp:explore_arcs} when \blue{$i = 2$}.}
     \end{figure}
   \end{multicols}
 \end{frame}
@@ -229,7 +243,7 @@
   \frametitle{Algorithm}
   \framesubtitle{Example}
   \begin{multicols}{2}
-    State at the end of \blue{$4$}th iteration of the while at line \ref{step:main_while}:
+    State at the end of \blue{$4$}th iteration of the while at line \ref{algo1:setp:main_while}:
     \begin{itemize}   
       \item \blue{$\Lambda_s = \{ ((0, 0, 1, 1, 0, 0, 0), 0) \}$};
       \item \blue{$\Lambda_2 = \{((3, 0, 3, 1, 1, 1, 0), 5)\}$};
@@ -261,8 +275,7 @@
         \path [draw,-latex] (a) edge [bend left=8] node[right]{\scriptsize\blue{$1: (1, 1)$}} (b);
         \path [draw,-latex] (b) edge [bend left=8] node[left]{\scriptsize\blue{$4: (1, -2)$}} (a);
       \end{tikzpicture}
-      \caption{Arcs explored the for loop at line \ref{step:explore_arcs} when \blue{$i = t$}.}
-      \label{fig:vrptw_disposable_example}
+      \caption{Arcs explored the for loop at line \ref{algo1:setp:explore_arcs} when \blue{$i = t$}.}
     \end{figure}
   \end{multicols}
 \end{frame}

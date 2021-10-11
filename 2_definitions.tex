@@ -120,6 +120,10 @@
   \begin{definition}
     \blue{$P_i$} dominates \blue{$P^{'}_i \leftrightarrow S_i \leqslant S^{'}_i$}.
   \end{definition}
+  We can fastly check if \blue{$A = (v_i^1, ..., v_i^{|V|}) \leqslant B = (v_i^{1'}, ..., v_i^{|V|'})$} 
+  by considering \blue{$A$} and \blue{$B$} as bitsets and checking whether 
+  \blue{$(v_i^k \implies v_i^{k'}) \iff (\neg v_i^{k'} \vee v_i^k)$}, i.e. \blue{$(A \implies B) \iff (\neg B \vee A)$}, \blue{$\forall k \in \{1, ..., |V|\}$}.
+  Hence, check whether a label dominates other can be done in \blue{$O(|R|)$}.
 \end{frame}
 
 \begin{frame}
@@ -129,6 +133,7 @@
   \blue{$k \in V$} is said to be unreachable by \blue{$P_i \rightarrow k \in V(P_i) \vee $} \blue{$ \exists r \in R (l_i^r + d_{ik}^r > e^r_k)$}.
   \end{definition}
   Note that, if \blue{$k \in V$} is unreachable by \blue{$P_i$}, then \blue{$\nexists$} elementary resource constrainted \blue{$i$}-\blue{$j$}-path in \blue{$D$}, due to the digraph metricity.
+  That is the main reason why we are considering the digraph as complete and metric.
 \end{frame}
 
 \begin{frame}

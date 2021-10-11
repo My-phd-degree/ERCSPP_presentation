@@ -1,0 +1,272 @@
+\begin{frame}
+  \frametitle{Bi-directional search}
+  \framesubtitle{Previous algorithm analysis}
+  \begin{itemize}
+    \item The number of generated states increases rapidly according to the size of the instance;
+    \item Among the reasons it is that any node \blue{$i$} label extension generates as many other labels as the number of \blue{$i$} possible successors;
+    \item States are pruned only when they are dominated;
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Bi-directional search}
+  \framesubtitle{Improvements}
+  Consider labels being propagated both from \blue{$s$} to \blue{$t$} and vice-versa.
+  Let
+  \begin{itemize}
+    \item \blue{$P^{'}_j$} be a feasible \blue{$j$}-\blue{$t$}-path in \blue{$D$};
+    \item \blue{$\Lambda_i^{f}$} and \blue{$\Lambda_i^{b}$} be the sets of forward and backward labels of node \blue{$i \in V$};
+    \item \blue{$E^b(S_j, i) = (\text{max} \{l^r_j - d_{ij}^r, (\textcolor{black}{max}_{i^{'} \in V} e^r_i) - b^r_i\} : r \in R) \cup (s_i + 1, v_i^1, ..., v_i^j + 1, $} \blue{$..., v_i^{|V|}) $} be the function that returns the label resulting from the backwards extension of a path \blue{$P^{'}_j$} by a node \blue{$i$} (\blue{$O(|R|)$}).
+    \item \blue{\[
+        f^b(S_j, i) =  
+        \begin{cases}
+          \text{\textcolor{black}{true}},  & \text{\textcolor{black}{if} }      \forall r \in R (l^r_j - d_{ij}^r \leqslant e_i^r) \wedge \neg v_j^i\\
+          \text{\textcolor{black}{false}}, & \text{\textcolor{black}{otherwise}}
+        \end{cases}
+    \]} be a function that says whether a backward extension is feasible (\blue{$O(|R|)$});
+ %the algorithm must examine two subsets of states, 
+ %whose size grows exponentially with the number of arcs in the corresponding forward and backward paths. 
+ %Due to the exponential dependence on the number of steps, 
+ %it is intuitive that generating shorter paths may yield a significant advantage in terms of number of states considered, 
+ %provided that duplicate solutions are avoided. 
+ %This is precisely the effect of bounding, whose purpose is to limit the length of the paths corresponding to non-dominated states. 
+ %Hereafter we formally define our bounded bi-directional dynamic programming algorithm.
+    %States, recurrence equations and domination rules are symmetrical to those presented above.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Bi-directional search}
+  \framesubtitle{Improvements}
+  Let
+  \begin{itemize}
+    \item \blue{$i, j \in V : i \neq j$} be two distinct nodes;
+    \item \blue{$S_i = (L_i, C_i) \in \Lambda_i^{f}$} be a forward state of node \blue{$i$}; and 
+    \item \blue{$S_j = (L_j, C_j) \in \Lambda_j^{b}$} be a backward state of node \blue{$j$}.
+  \end{itemize}
+  \begin{definition}
+    Forward state \blue{$S_i$} and a backward state \blue{$S_j$} can be feasibly joined through arc \blue{$(i, j)$} 
+    if \blue{$(\neg ((v_i^1, ..., v_i^{|V|}) \vee (v_j^1, ..., v_j^{|V|}))$}, and \blue{$ l_j^r - d_{ij}^r \geqslant l_i^r  $}.
+  \end{definition}
+  A path from \blue{$s$} to \blue{$t$} is detected each time a forward state in \blue{$\Lambda_i^{f}$} and a backward state in \blue{$\Lambda_j^{b}$} can be feasibly joined through arc \blue{$(i, j)$}.
+%If there exist a resource whose consumption is not less than a certain known amount β at each extension, then it is possible to define buckets of size β and to mark as permanent all those labels for which the resource consumption falls in the range of the first bucket not yet extended. 
+\end{frame}
+
+\begin{frame}
+  \frametitle{Bi-directional search}
+  \framesubtitle{Algorithm: Forward extension procedure}
+  \begin{algorithm}[H]
+    \scriptsize
+    \begin{algorithmic}[1]
+      \STATE Function\{Forward extension\}\{\blue{$i \in V, \Lambda^f_i, N$}\}
+        \label{algo2:setp:explore_arcs}\FORALL {\blue{$(i, j) \in \delta^{+}(i)$}}
+          \STATE \blue{$F_{ij} \gets \emptyset$};
+          \FORALL {\blue{$S_i \in \Lambda^f_i$}}
+            \IF {\blue{$f(S_i, j)$}}
+              \STATE \blue{$F_{ij} \gets F_{ij} \cup \{E(S_i, j)\}$};
+            \ENDIF
+          \ENDFOR
+          \STATE \blue{$\Lambda^f_j \gets N_D(F_{ij} \cup \Lambda^f_j)$};
+          \IF {\blue{$\Lambda^f_j$} has changed}
+            \STATE \blue{$N \gets N \cup \{j\}$};
+          \ENDIF
+        \ENDFOR
+        \STATE \blue{$N \gets N \backslash \{i\}$};
+     \STATE EndFunction
+    \end{algorithmic}
+    \caption{Forward extension algorithm}
+    \label{alg2:forward_extension}
+  \end{algorithm}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Bi-directional search}
+  \framesubtitle{Algorithm: Backward extension procedure}
+  \begin{algorithm}[H]
+    \scriptsize
+    \begin{algorithmic}[1]
+      \STATE Function\{Backward extension\}\{\blue{$i \in V, \Lambda^b_i, N$}\}
+        \label{algo3:setp:explore_arcs}\FORALL {\blue{$(j, i) \in \delta^{-}(i)$}}
+          \STATE \blue{$F_{ji} \gets \emptyset$};
+          \FORALL {\blue{$S_i \in \Lambda^b_i$}}
+            \IF {\blue{$f^b(S_i, j)$}}
+              \STATE \blue{$F_{ji} \gets F_{ji} \cup \{E^b(S_i, j)\}$};
+            \ENDIF
+          \ENDFOR
+          \STATE \blue{$\Lambda^b_j \gets N_D(F_{ji} \cup \Lambda^b_j)$};
+          \IF {\blue{$\Lambda^b_j$} has changed}
+            \STATE \blue{$N \gets N \cup \{j\}$};
+          \ENDIF
+        \ENDFOR
+        \STATE \blue{$N \gets N \backslash \{i\}$};
+     \STATE EndFunction
+    \end{algorithmic}
+    \caption{Forward extension algorithm}
+    \label{alg3:backward_extension}
+  \end{algorithm}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Bi-directional search}
+  \framesubtitle{Algorithm: Search}
+  \begin{algorithm}[H]
+    \scriptsize
+    \begin{algorithmic}[1]
+      \REQUIRE \blue{$D(V, A), c_a \quad \forall a \in A, d_a^r \quad \forall a \in A, r \in R$}
+      %initialization
+      \STATE \blue{$\Lambda^f_s \gets \{ (\{0\}^{|R|} \cup (1, 1) \cup \{0\}^{|V| - 1}, 0) \}$};
+      \STATE \blue{$\Lambda^b_t \gets \{ (e_t^r : r \in R) \cup (1, 1) \cup \{0\}^{|V| - 1}, 0) \}$};
+      \STATE \blue{$\Lambda^f_i \gets \emptyset \quad \forall i \in V \backslash \{s\}$};
+      \STATE \blue{$\Lambda^b_i \gets \emptyset \quad \forall i \in V \backslash \{t\}$};
+      \STATE \blue{$N \gets \{s, t\}$};
+      %exploration
+      \label{algo1:setp:main_while}\WHILE {\blue{$N \neq \emptyset$}}
+        \STATE Let \blue{$i \in N$} be a \blue{$N$} arbitrary node;
+        \STATE Forward extension\{\blue{$i, \Lambda^f_i, N$}\};
+        \STATE Backward extension\{\blue{$i, \Lambda^b_i, N$}\};
+        \STATE \blue{$N \gets N \backslash \{i\}$};
+      \ENDWHILE
+      \STATE \{Merge\}\{\blue{$ \Lambda^f, \Lambda^b, N$}\};
+     % \RETURN \blue{min$_{(L_t, C_t) \in \Lambda_t} \{ C_t \}$} if \blue{$\Lambda_t \neq \emptyset$} else \blue{$\infty$};
+    \end{algorithmic}
+    \caption{Search}
+    \label{alg3:main}
+  \end{algorithm}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Bi-directional search}
+  \framesubtitle{Strategies}
+  \begin{itemize}
+    \item Bounding for pruning;
+    \item Halfway bounding for the number of extensions;
+    \item Bounding for monotone resources;
+    \item Solutions uniqueness.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Bi-directional search}
+  \framesubtitle{Bounding for pruning}
+  Let
+  \begin{itemize}
+    \item \blue{$S_i = (L_i, C_i) \in \Lambda^f_i$} be a forward state of node \blue{$i \in V$};
+    \item \blue{$\mathcal{S} = \{j \in V : v_i^j\} = V(P_i)$} be the set of nodes in \blue{$P_i$};
+    \item \blue{$m^f_r(S_i, j) = \textcolor{black}{min}_{k \notin \mathcal{S} \backslash \{i\}} \{ d^r_{kj} \}$} be a lower bound to the consumption of resource \blue{$r \in R$} when a forward state \blue{$S_i$} is extended to \blue{$j \in V$};
+    \item \blue{$S^{'}_i = (L^{'}_i, C^{'}_j) \in \Lambda^b_i$} be a forward state of node \blue{$i \in V$};
+    \item \blue{$m^b_r(S_i, j) = \textcolor{black}{min}_{k \notin \mathcal{S} \backslash \{i\}} \{ d^r_{jk} \}$} be a lower bound to the consumption of resource \blue{$r \in R$} when the backward state \blue{$S^{'}_i$} is extended to \blue{$j \in V$};
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Bi-directional search}
+  \framesubtitle{Bounding for pruning}
+ \begin{align} 
+    \textcolor{black}{min}  && \color{blue}\sum_{j \in V \backslash \mathcal{S}} \lambda_j \textcolor{black}{min}_{k \notin \mathcal{S}\backslash \{i\}} \{ c_{kj} \} && \\
+    \textcolor{black}{s.t.} && \color{blue}l_i^r + \sum_{j \in V \backslash \mathcal{S}} \lambda_j m^f_r(S_i, j) \leqslant e_r^i && \color{blue}\forall r \in R \\
+                            && \color{blue}\lambda_j \in \mathbb{B} && \color{blue}\forall j \in V \backslash \mathcal{S} 
+\end{align}
+  Let \blue{$\bar{C}_i$} be the optimal solution of the above knapsack formulation for the label \blue{$S_i$}, and \blue{$UB$} be an upper bound on the ERCSPP solution.
+  If \blue{$C_i - \bar{C}_i \geqslant UB$} then the state \blue{$S_i$} can be chopped off.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Bi-directional search}
+  \framesubtitle{Halfway bounding for the number of extensions}
+  \begin{align} 
+    \textcolor{black}{min}  && \color{blue}\sum_{j \in V \backslash \mathcal{S}} \lambda_j && \\
+    \textcolor{black}{s.t.} && \color{blue}l_i^r + \sum_{j \in V \backslash \mathcal{S}} \lambda_j m^f_r(S_i, j) \leqslant e_r^i && \color{blue}\forall r \in R \\
+                            && \color{blue}\lambda_j \in \mathbb{B} && \color{blue}\forall j \in V \backslash \mathcal{S} 
+  \end{align}
+  If the optimal solution \blue{$p$} of the above knapsack formulation is \blue{$\leqslant |\mathcal{S}|$} then the state \blue{$S_i$} has reached its halfway, since we are working with bi-directional search, then we can stop the extensions of this state.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Bi-directional search}
+  \framesubtitle{Bounding for monotone resources}
+  Let \blue{$r \in R$} be a resource, \blue{$r$} is said to be monotone iff \blue{$d_a^r \geqslant 0$} \blue{$\forall a \in A$}.
+  If \blue{$l_i^r \geqslant \frac{e^r_t}{2}$} then the state \blue{$S_i$} has reached its resource halfway, then we can stop the extensions of this state.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Bi-directional search}
+  \framesubtitle{Solutions uniqueness}
+  \begin{itemize}
+    \item Another issue to be considered comes from the need of generating many different columns with negative reduced cost when using the ERCSPP as a pricing subproblem in a branch-and-price;
+    \item The bounded bi-directional dynamic programming algorithm can provide duplicate solutions: 
+      \begin{itemize}
+        \item Consider for instance an \blue{$s$}-\blue{$t$} path including the sequence \blue{$(i, j, k)$};
+        \item Eventually, the forward states for vertices \blue{$i$} and \blue{$j$} and backward states for vertices \blue{$j$} and \blue{$k$} are generated;
+        \item Hence the same solution is obtainable by merging a forward state of \blue{$i$} with a backward state of \blue{$j$},
+          or merging a forward state of \blue{$j$} with a backward state of \blue{$k$};
+        \item If we need to store in some data structure all columns with negative reduced cost, the duplicate columns cannot be discarded on the basis of their cost and their identification may be computationally expensive.
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Bi-directional search}
+  \framesubtitle{Solutions uniqueness}
+  \begin{itemize}
+    \item Then, we accept an \blue{$s$}-\blue{$t$} path only when it is produced by the join of a forward state and a backward state,
+      which the forward and backward consumptions of a monotone resource are as close as possible to half the overall consumption (\blue{$\frac{e^r_t}{2}$}),
+      that is the two states are as close as possible to the halfway point along the \blue{$s$}-\blue{$t$} path;
+    \item Let $\rho_f$ and $\rho_b$ be a monotone resource consumption in forward and backward paths;
+    \item Among all possible pairs of forward and backward states producing the same \blue{$s$}-\blue{$t$} path we choose the one which \blue{$\psi = |\rho_f - \rho_b|$} is minimum;
+    \item In the case of a tie, i.e., two available mergings where \blue{$\psi$} is minimum, we choose the one with \blue{$\rho_f > \rho_b$};
+    \item This test guarantees that each \blue{$s$}–\blue{$t$} path is generated only once.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Bi-directional search}
+  \framesubtitle{Algorithm: Merge}
+  Let
+  \begin{itemize}
+    \item \blue{\[
+        f(S_i, S_j) =  
+        \begin{cases}
+        \text{\textcolor{black}{true}},  & \text{\textcolor{black}{if} } \forall r \in R (l^r_j - d_{ij}^r \leqslant e_i^r) \wedge \\
+                                         & (v_i^1, ..., v_i^{|V|}) \implies \neg (v_j^1, ..., v_j^{|V|})\\
+          \text{\textcolor{black}{false}}, & \text{\textcolor{black}{otherwise}}
+        \end{cases}
+    \]} be a function that says whether a merge between a forward label \blue{$S_i$} and a backward label \blue{$S_j$} is feasible;
+    \item \blue{$H(S_i, S_j)$} be the function that checks if the \blue{$s$}-\blue{$t$} path obtained from merging the forward label \blue{$S_i$} and the backward label \blue{$S_j$} satisfies the halfway conditions outlined before (Bounding for monotone resources, and Halfway bounding for the number of extensions);
+    \item \blue{$Save(S_i, S_j)$} a function tha saves the solution obtained from the two merging of \blue{$S_i$} and \blue{$S_j$}.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Bi-directional search}
+  \framesubtitle{Algorithm: Merge}
+  \begin{algorithm}[H]
+    \scriptsize
+    \begin{algorithmic}[1]
+     \STATE Function\{Merge forward and backward paths\}\{\blue{$ i, \Lambda^f_i, \Lambda^b_i $}\}
+       \STATE Let \blue{$\phi_i^f = \textcolor{black}{min}_{(L_i, C_i) \in \Lambda^f_i} \{ C_i \}$} be the minimum cost among all labels in \blue{$\Lambda^f_i$};
+       \STATE Let \blue{$\phi_i^b = \textcolor{black}{min}_{(L_i, C_i) \in \Lambda^b_i} \{ C_i \}$} be the minimum cost among all labels in \blue{$\Lambda^b_i$};
+       \STATE Let \blue{$\phi^b = \textcolor{black}{min}_{i \in V} \{ \phi_i^b \}$} be the minimum cost among all labels in \blue{$\Lambda^b$};
+       \FORALL {\blue{$i \in V$}}
+         \IF {\blue{$\phi_i^f + \textcolor{black}{min}_{j \in V \backslash \{i\}} c_{ij} + \phi^b < UB$}}
+           \FORALL {\blue{$S_i = (L_i, C_i) \in \Lambda_i^f$}}
+             \IF {\blue{$C_i + \textcolor{black}{min}_{j \in V \backslash \{i\}} c_{ij} + \phi^b < UB$}}
+               \FORALL {\blue{$j \in V$}}
+                 \IF {\blue{$C_i + c_{ij} + \phi_j^b < UB$}}
+                   \FORALL {\blue{$S_j = (L_j, C_j) \in \Lambda_j^b$}}
+                     \IF {\blue{$C_i + c_{ij} + C_j < UB \wedge f(S_i, S_j) \wedge H(S_i, S_j)$}}
+                       \STATE \blue{$Save(S_i, S_j)$};
+                     \ENDIF
+                   \ENDFOR
+                 \ENDIF
+               \ENDFOR
+             \ENDIF
+           \ENDFOR
+         \ENDIF
+       \ENDFOR
+     \STATE EndFunction
+    \end{algorithmic}
+    \caption{Merge forward and backward paths algorithm}
+    \label{alg3:backward_extension}
+  \end{algorithm}
+\end{frame}
